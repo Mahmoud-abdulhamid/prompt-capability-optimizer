@@ -1,5 +1,8 @@
 # Prompt Capability Optimizer (`prompt-capability-optimizer`)
 
+[![npm version](https://img.shields.io/npm/v/prompt-capability-optimizer.svg)](https://www.npmjs.com/package/prompt-capability-optimizer)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > **Production-Grade, Cross-Platform Agent Meta-Skill for Autonomous Capability Discovery & Two-Pass Prompt Optimization**  
 > **Author & Architect**: **Mahmoud Abdelhameid** ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **License**: MIT | **Version**: 1.0.0
 
@@ -104,7 +107,16 @@
 
 ## 4. CLI Usage
 
-### Optimize a Prompt
+### Direct Execution with npx (Node.js)
+```bash
+# Run immediately without installation
+npx prompt-capability-optimizer optimize "Build a secure NestJS authentication system with PostgreSQL and JWT"
+
+# Inspect host environment capabilities
+npx prompt-capability-optimizer probe
+```
+
+### Python Package Invocation
 ```bash
 # Human-readable format
 python -m prompt_capability_optimizer optimize "Build a secure NestJS authentication system with PostgreSQL and JWT"
