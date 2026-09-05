@@ -1,0 +1,51 @@
+{
+  "name": "prompt-capability-optimizer",
+  "version": "1.0.0",
+  "description": "Production-grade, cross-platform agent meta-skill for autonomous capability discovery & two-pass prompt optimization.",
+  "main": "index.js",
+  "bin": {
+    "prompt-capability-optimizer": "bin/cli.js"
+  },
+  "scripts": {
+    "test": "python -m unittest discover -s tests -p \"test_*.py\" -v",
+    "start": "node ./bin/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mahmoud-abdulhamid/prompt-capability-optimizer.git"
+  },
+  "keywords": [
+    "agent-skill",
+    "skills",
+    "mcp",
+    "prompt-engineering",
+    "prompt-optimization",
+    "capability-discovery",
+    "ai-agent",
+    "claude",
+    "gemini",
+    "cursor",
+    "windsurf"
+  ],
+  "author": "Mahmoud Abdelhameid <Develper.net@gmail.com> (https://www.linkedin.com/in/mahmoud-abdelhameid-dev/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mahmoud-abdulhamid/prompt-capability-optimizer/issues"
+  },
+  "homepage": "https://github.com/Mahmoud-abdulhamid/prompt-capability-optimizer#readme",
+  "files": [
+    "SKILL.md",
+    "index.js",
+    "bin/",
+    "prompt_capability_optimizer/",
+    "references/",
+    "templates/",
+    "adapters/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
