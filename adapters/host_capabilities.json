@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HostCapabilitiesSchema",
+  "description": "Cross-agent host runtime capability specification and detection schema for prompt-capability-optimizer.",
+  "type": "object",
+  "properties": {
+    "agent_identity": {
+      "type": "string",
+      "enum": ["claude_code", "gemini_cli", "cursor", "windsurf", "cline", "roo_code", "codex", "opencode", "generic_agent", "unknown"]
+    },
+    "runtime_environment": {
+      "type": "object",
+      "properties": {
+        "os": { "type": "string", "enum": ["windows", "linux", "darwin"] },
+        "shell_type": { "type": "string", "enum": ["powershell", "pwsh", "bash", "zsh", "cmd", "none"] },
+        "working_directory": { "type": "string" }
+      },
+      "required": ["os", "shell_type", "working_directory"]
+    },
+    "capabilities": {
+      "type": "object",
+      "properties": {
+        "supports_filesystem": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "methods": { "type": "array", "items": { "type": "string", "enum": ["native_tool", "shell_commands", "read_only", "full_access"] } }
+          },
+          "required": ["available"]
+        },
+        "supports_shell": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "supports_async": { "type": "boolean" },
+            "supports_daemon": { "type": "boolean" },
+            "interactive_input": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_git": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "in_git_repo": { "type": "boolean" },
+            "branch_isolation": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_web_search": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "provider": { "type": "string" }
+          },
+          "required": ["available"]
+        },
+        "supports_web_fetch": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "javascript_execution": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_browser": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "headless": { "type": "boolean" },
+            "devtools_protocol": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_mcp": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "active_servers": { "type": "array", "items": { "type": "string" } },
+            "lazy_loading_supported": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_connectors": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "active_connectors": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["available"]
+        },
+        "supports_skills": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "local_skill_roots": { "type": "array", "items": { "type": "string" } },
+            "registry_cli_available": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_subagents": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "supports_parallel": { "type": "boolean" },
+            "isolated_workspace": { "type": "boolean" }
+          },
+          "required": ["available"]
+        },
+        "supports_code_execution": {
+          "type": "object",
+          "properties": {
+            "available": { "type": "boolean" },
+            "languages": { "type": "array", "items": { "type": "string" } },
+            "sandboxed": { "type": "boolean" }
+          },
+          "required": ["available"]
+        }
+      },
+      "required": [
+        "supports_filesystem",
+        "supports_shell",
+        "supports_git",
+        "supports_web_search",
+        "supports_web_fetch",
+        "supports_mcp",
+        "supports_skills"
+      ]
+    }
+  },
+  "required": ["agent_identity", "runtime_environment", "capabilities"]
+}
