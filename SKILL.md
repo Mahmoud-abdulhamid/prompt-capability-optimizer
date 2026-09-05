@@ -125,8 +125,12 @@ When local capabilities are insufficient for complex tasks (Level 2+):
   - *Targeted:* `postgres connection pooling pgbouncer transaction isolation`
 
 #### 4. Capability Utility Scoring & Deduplication
-Every candidate capability $C$ is evaluated against this objective utility score:
-$$\text{Utility}(C) = (\text{Relevance} \times 0.3) + (\text{CapabilityMatch} \times 0.3) + (\text{Quality} \times 0.2) + (\text{Freshness} \times 0.1) + (\text{Trust} \times 0.1) - (\text{Risk} + \text{Overhead})$$
+Every candidate capability $C$ is evaluated against the authoritative utility score established in `references/scoring_rubric.md`:
+$$\text{Utility}(C) = (0.25 R + 0.25 M + 0.15 Q + 0.15 T + 0.10 C + 0.05 F) - (0.10 O + 0.20 K)$$
+
+Where:
+- $R$ = Relevance, $M$ = Capability Match, $Q$ = Code/Skill Quality, $T$ = Trust & Provenance
+- $C$ = Compatibility, $F$ = Freshness, $O$ = Overhead & Complexity, $K$ = Security Risk
 
 - **Redundancy Filter**: If two skills provide overlapping capabilities (e.g., both offer database migration guidance), select the one with higher trust and narrower specialization. Never load redundant context.
 - *(See details in [references/scoring_rubric.md](file:///d:/prompt-capability-optimizer/references/scoring_rubric.md))*

@@ -1,100 +1,158 @@
 # Prompt Capability Optimizer (`prompt-capability-optimizer`)
 
-> **Production-Grade, Cross-Platform Agent Meta-Skill for Intelligent Capability Discovery & Two-Pass Prompt Engineering**
+> **Production-Grade, Cross-Platform Agent Meta-Skill for Autonomous Capability Discovery & Two-Pass Prompt Optimization**
 
-`prompt-capability-optimizer` sits between a user's raw prompt and an AI coding agent's execution loop. It combines the active discovery principles of `find-skills` with modern engineering standards to generate mathematically sound, tool-aware, verified, and secure prompts.
-
----
-
-## Key Features
-
-- **Cross-Agent Compatibility**: Runs seamlessly on Claude Code, Gemini CLI, Cursor, Windsurf, Cline, Roo Code, Codex, and OpenCode.
-- **Local & Online Discovery**: Auto-detects local skills across project/user paths and targets authoritative online registries (`skills.sh`).
-- **Capability Graph & Scoring**: Evaluates candidate tools using a weighted utility formula and eliminates redundant skills to preserve context window.
-- **Strict Security Boundaries**: Enforces the "Never Install Blindly" rule, prompt injection resistance, and zero plaintext secret leakage.
-- **Two-Pass Optimization**:
-  - **Pass 1 (Semantic)**: Clarifies requirements, bounds, and edge cases while strictly preserving user intent.
-  - **Pass 2 (Execution)**: Binds real environment tools, linter/test directives, and execution phases.
-- **Verification Gates**: Generates deterministic test commands (`tsc`, linters, unit/e2e tests) and runs an internal 13-point self-critique.
+`prompt-capability-optimizer` sits between a user's raw prompt and an AI coding agent's execution loop. It combines the active discovery principles of `find-skills` with professional prompt-engineering standards to generate mathematically sound, tool-aware, verified, and secure prompts without expanding verbosity.
 
 ---
 
-## Directory Structure
+## 1. What It Does
+
+1. **Classifies Task Depth**: Adaptively categorizes requests from Level 0 (Simple/Informational) to Level 4 (Enterprise Multi-System SaaS).
+2. **Discovers Real Capabilities**: Scans local file paths, host-declared MCP servers, the open `skills.sh` registry, and authoritative web documentation.
+3. **Applies Strict Security Gates**: Enforces the "Never Install Blindly" governance protocol, redacts secrets (API keys, JWTs, DB URLs), and neutralizes adversarial prompt injection payloads.
+4. **Calculates Normalized Utility**: Uses a single deterministic scoring formula from `references/scoring_rubric.md` and eliminates duplicate tools.
+5. **Executes Two-Pass Optimization**:
+   - **Pass 1 (Semantic)**: Clarifies objectives, contracts, and negative constraints while preserving 100% of user intent.
+   - **Pass 2 (Execution)**: Binds real tools, phased execution milestones, and repository-derived verification commands.
+6. **Runs Real Self-Critique**: Tests candidate prompts against a 13-point rubric; automatically executes a correction pass if requirements are missing.
+
+---
+
+## 2. Cross-Agent Support Matrix
+
+| Agent Host | Runtime Status | Skill Discovery | MCP Discovery | Web Guidance | Fallback Path |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Gemini CLI / Antigravity** | **Validated** | `~/.gemini/config/skills` | `~/.gemini/antigravity/mcp` | Native search & fetch | Full native support |
+| **Claude Code** | **Validated** | `~/.claude/skills` | `~/.claude/mcp.json` | WebSearch / WebFetch | Full native support |
+| **Cline / Roo Code** | **Validated** | `.cline/skills`, `.roo/skills` | Extension MCP | Extension browser | Host declared |
+| **Cursor** | **Partial** | `.cursor/rules`, `.cursor/skills` | `.cursor/mcp.json` | Integrated search | Graceful CLI fallback |
+| **Windsurf** | **Partial** | `.windsurf/` | Native MCP config | Integrated search | Graceful CLI fallback |
+| **Codex / OpenCode** | **Host-Dependent** | Repository root / skills | Custom CLI / JSON-RPC | Shell curl / python | Generic fallback |
+
+---
+
+## 3. Architecture Pipeline
 
 ```text
-.
-├── SKILL.md                              # Main agent skill entry point & instructions
-├── README.md                             # Project overview and installation guide
-├── adapters/
-│   ├── host_capabilities.json          # Standard JSON schema for host environment probing
-│   └── environment_adapters.md          # Multi-agent adaptation and graceful fallback guide
-├── references/
-│   ├── capability_graph.md              # Technical taxonomy and decomposition graph
-│   ├── prompt_engineering_standards.md # Two-level engineering principles and prompt anatomy
-│   ├── scoring_rubric.md                # Mathematical scoring formulas and deduplication
-│   ├── security_and_trust.md            # Installation governance and prompt injection guards
-│   └── cross_agent_matrix.md            # Command Rosetta Stone across agent platforms
-├── templates/
-│   ├── optimized_prompt_template.md     # Standard template for optimized outputs
-│   ├── execution_plan_template.md       # Phased agent execution plan template
-│   └── verification_matrix_template.md  # Quality gate & test verification matrix
-├── scripts/
-│   ├── capability_checker.py            # CLI tool to inspect host environment & skills
-│   └── prompt_optimizer_engine.py       # Algorithmic engine for classification & scoring
-├── examples/
-│   ├── 01_simple_prompt.md              # Level 0 (Simple code explanation)
-│   ├── 02_coding_api.md                 # Level 2 (NestJS REST API creation)
-│   ├── 03_existing_repo_refactor.md     # Level 2 (Repository architecture refactoring)
-│   ├── 04_debugging_memory_leak.md      # Level 2 (Diagnosing and fixing memory leaks)
-│   ├── 05_security_audit.md             # Level 3 (OWASP ASVS authentication audit)
-│   ├── 06_complex_saas_architecture.md  # Level 4 (Multi-tenant B2B SaaS architecture)
-│   ├── 07_research_rag_evaluation.md    # Level 4 (Comparative RAG architecture evaluation)
-│   └── 08_multitool_issue_resolver.md   # Level 3 (Issue -> Code -> Test -> PR workflow)
-└── tests/
-    ├── __init__.py
-    └── test_optimizer.py                # Automated Quality Gate verification suite
+                         RAW USER PROMPT
+                               │
+                               ▼
+                      ┌─────────────────┐
+                      │ Intent Analyzer │
+                      └────────┬────────┘
+                               ▼
+                     ┌───────────────────┐
+                     │  Task Classifier  │ (Level 0 - 4)
+                     └────────┬──────────┘
+                              ▼
+                   ┌──────────────────────┐
+                   │ Capability Extractor │
+                   └──────────┬───────────┘
+                              ▼
+                 ┌──────────────────────────┐
+                 │ Host Capability Adapter  │
+                 └────────────┬─────────────┘
+                              ▼
+        ┌──────────────────────────────────────────┐
+        │          Capability Discovery            │
+        │                                          │
+        │ Local Skills   find-skills   MCP         │
+        │ Connectors     Plugins       Web         │
+        │ Built-in Tools              Docs         │
+        └─────────────────────┬────────────────────┘
+                              ▼
+                     ┌─────────────────┐
+                     │  Trust Engine   │ (Reputation vs. Trust)
+                     └────────┬────────┘
+                              ▼
+                     ┌─────────────────┐
+                     │ Scoring Engine  │ (Authoritative Utility Formula)
+                     └────────┬────────┘
+                              ▼
+                    ┌───────────────────┐
+                    │  Deduplication    │ (Context Budgeting)
+                    └─────────┬─────────┘
+                              ▼
+                  ┌───────────────────────┐
+                  │ Semantic Pass (Pass 1)│
+                  └───────────┬───────────┘
+                              ▼
+                  ┌───────────────────────┐
+                  │Execution Pass (Pass 2)│
+                  └───────────┬───────────┘
+                              ▼
+                     ┌─────────────────┐
+                     │  Self-Critique  │
+                     └────────┬────────┘
+                              │
+                       FAIL ──┘
+                              │
+                              ▼
+                       Correction Pass
+                              │
+                              ▼
+                     ┌─────────────────┐
+                     │  Verification   │ (Repository-aware: package.json / pytest)
+                     └────────┬────────┘
+                              ▼
+                       FINAL PROMPT
 ```
 
 ---
 
-## Quick Start & Usage
+## 4. CLI Usage
 
-### 1. Invocations
-
-#### Command Line / Explicit
-```text
-/optimize-prompt Build a high-throughput webhook consumer in Go with Redis streams.
-```
-
-#### Contextual / Interactive
-When invoked without arguments, the optimizer evaluates the current open files and conversation history:
-```text
-/optimize-prompt
-```
-
-### 2. Probing Environment Capabilities
-
-Run the autonomous discovery prober to inspect what your current environment supports:
+### Optimize a Prompt
 ```bash
-python scripts/capability_checker.py
+# Human-readable format
+python -m prompt_capability_optimizer optimize "Build a secure NestJS authentication system with PostgreSQL and JWT"
+
+# Machine-readable JSON output
+python -m prompt_capability_optimizer optimize "Refactor this project architecture" --json --mode B
 ```
 
-### 3. Running the Quality Gate Test Suite
-
-Validate all components, templates, references, and schemas:
+### Probe Environment Capabilities
 ```bash
-python -m unittest tests/test_optimizer.py
+python -m prompt_capability_optimizer probe
 ```
 
 ---
 
-## Output Modes
+## 5. Running the Test Suites
 
-- **Mode A (Optimize Only)**: Returns capability analysis and the optimized prompt.
-- **Mode B (Optimize + Prepare)**: Returns analysis, tool selections, the optimized prompt, phased execution plan, and verification matrix.
-- **Mode C (Optimize + Execute)**: Fully automates the optimization, environment preparation, code execution, testing, and delivery reporting.
+The project includes both structural and behavioral test suites:
+
+```bash
+# Run all 21 automated unit, behavioral, adversarial, and end-to-end tests:
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Test coverage includes:
+- **Test A**: Simple informational prompt behavior.
+- **Test B**: Framework isolation (React does not hallucinate NestJS).
+- **Test C**: Specialized security and authentication extraction.
+- **Test D**: Repository-aware verification command derivation.
+- **Test E**: Non-mocked host MCP server discovery.
+- **Test F**: Local skill frontmatter parsing and utility ranking.
+- **Test G**: Targeted authoritative web documentation discovery.
+- **Test H**: Self-critique rejection of incomplete prompts.
+- **Test I**: Adversarial prompt injection neutralization.
+- **Test J**: Automated secret detection and redaction.
+- **Test K**: Capability deduplication and context budgeting.
+- **Test L**: Cross-agent host adapters.
+- **Test M**: Full end-to-end pipeline execution and verification.
 
 ---
 
-## License
-MIT License. Free for open-source and enterprise agent engineering.
+## 6. Security & Installation Governance
+
+- **"Never Install Blindly"**: External skills or MCP servers are NEVER automatically installed without calculating $\text{Expected Value} > \text{Risk} + \text{Cost}$ and presenting explicit human consent gates.
+- **Secret Redaction**: Detects API keys, AWS credentials, JWT tokens, and connection strings, redacting them before prompt rendering.
+- **Prompt Injection Defense**: Scans and sanitizes adversarial directives (`IGNORE PREVIOUS INSTRUCTIONS`, exfiltration requests).
+
+---
+
+## 7. License
+
+MIT License. See [LICENSE](file:///d:/prompt-capability-optimizer/LICENSE) for details.
