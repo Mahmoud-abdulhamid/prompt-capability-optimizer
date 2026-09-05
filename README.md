@@ -1,7 +1,7 @@
 # Prompt Capability Optimizer (`prompt-capability-optimizer`)
 
 > **Production-Grade, Cross-Platform Agent Meta-Skill for Autonomous Capability Discovery & Two-Pass Prompt Optimization**  
-> **Author & Architect**: **Mahmoud** ([Develper.net@gmail.com](mailto:Develper.net@gmail.com)) | **License**: MIT | **Version**: 1.0.0
+> **Author & Architect**: **Mahmoud Abdelhameid** ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **License**: MIT | **Version**: 1.0.0
 
 `prompt-capability-optimizer` sits between a user's raw prompt and an AI coding agent's execution loop. It combines the active discovery principles of `find-skills` with professional prompt-engineering standards to generate mathematically sound, tool-aware, verified, and secure prompts without expanding verbosity.
 
@@ -156,8 +156,10 @@ Test coverage includes:
 
 ## 7. Authorship & Copyright
 
-- **Lead Architect & Author**: **Mahmoud**
+- **Lead Architect & Author**: **Mahmoud Abdelhameid**
+- **LinkedIn**: [mahmoud-abdelhameid-dev](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/)
 - **Email / Contact**: [Develper.net@gmail.com](mailto:Develper.net@gmail.com)
-- **Copyright**: © 2026 Mahmoud. All rights reserved.
+- **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved.
 - **License**: MIT License — see [LICENSE](file:///d:/prompt-capability-optimizer/LICENSE) for details.
+
 

@@ -80,4 +80,4 @@ Tasks often involve mutually exclusive technical options (e.g., REST vs. gRPC, T
    - Example: A request to "write an algorithmic sorter" does not need Docker, Kubernetes, or JWT auth capabilities.
 
 ---
-**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License
+**Author**: Mahmoud Abdelhameid ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved. | **License**: MIT License

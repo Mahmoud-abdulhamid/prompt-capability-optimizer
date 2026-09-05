@@ -2,8 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "HostCapabilitiesSchema",
   "description": "Cross-agent host runtime capability specification and detection schema for prompt-capability-optimizer.",
-  "author": "Mahmoud <Develper.net@gmail.com>",
-  "copyright": "Copyright (c) 2026 Mahmoud. All rights reserved.",
+  "author": "Mahmoud Abdelhameid <Develper.net@gmail.com>",
+  "linkedin": "https://www.linkedin.com/in/mahmoud-abdelhameid-dev/",
+  "copyright": "Copyright (c) 2026 Mahmoud Abdelhameid. All rights reserved.",
   "type": "object",
   "properties": {
     "agent_identity": {

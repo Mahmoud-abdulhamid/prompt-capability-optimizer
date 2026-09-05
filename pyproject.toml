@@ -1,4 +1,4 @@
-﻿[build-system]
+[build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
@@ -10,14 +10,15 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [
-    { name = "Mahmoud", email = "Develper.net@gmail.com" }
+    { name = "Mahmoud Abdelhameid", email = "Develper.net@gmail.com" }
 ]
 maintainers = [
-    { name = "Mahmoud", email = "Develper.net@gmail.com" }
+    { name = "Mahmoud Abdelhameid", email = "Develper.net@gmail.com" }
 ]
 keywords = ["ai-agent", "prompt-engineering", "skills", "mcp", "optimization", "discovery"]
 
 [project.urls]
+"LinkedIn" = "https://www.linkedin.com/in/mahmoud-abdelhameid-dev/"
 "Author" = "mailto:Develper.net@gmail.com"
 
 [project.scripts]

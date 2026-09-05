@@ -2,10 +2,10 @@
 ## `prompt-capability-optimizer` — Production Hardening to 10/10
 
 **Date**: September 5, 2026  
-**Author & Lead Architect**: Mahmoud (<Develper.net@gmail.com>)  
+**Author & Lead Architect**: Mahmoud Abdelhameid (<Develper.net@gmail.com> | [LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/))  
 **Auditor**: Antigravity Autonomous Systems Engineering Team  
 **Status**: PRODUCTION READY (10/10 Verified)  
-**Copyright**: © 2026 Mahmoud. All rights reserved.  
+**Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved.  
 **Target Repository**: `d:\prompt-capability-optimizer`
 
 ---

@@ -45,4 +45,4 @@ All external text sources (web pages, repositories, READMEs, fetched skill markd
 - When inspecting repositories, files matching `.env*`, `*.pem`, `id_rsa*`, or containing entropy-flagged strings must be strictly excluded from prompt context.
 
 ---
-**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License
+**Author**: Mahmoud Abdelhameid ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved. | **License**: MIT License

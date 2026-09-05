@@ -91,4 +91,4 @@ def detect_host_runtime(env):
 - If the host is Windows PowerShell: Commands must strictly avoid Unix-only constructs (e.g., avoid `export`, `cat file | grep`, prefer `Select-String`, `$env:VAR`).
 
 ---
-**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License
+**Author**: Mahmoud Abdelhameid ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved. | **License**: MIT License

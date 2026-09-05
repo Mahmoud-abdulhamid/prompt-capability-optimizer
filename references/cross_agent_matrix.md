@@ -59,4 +59,4 @@ When a prompt is generated for an environment lacking a specific capability:
    - The prompt provides direct CLI commands or standard REST/cURL commands utilizing existing system binaries (e.g., using `gh` CLI instead of GitHub MCP).
 
 ---
-**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License
+**Author**: Mahmoud Abdelhameid ([LinkedIn](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/) | [Email](mailto:Develper.net@gmail.com)) | **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved. | **License**: MIT License

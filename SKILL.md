@@ -1,7 +1,8 @@
 ---
 name: prompt-capability-optimizer
 description: Production-grade, cross-platform agent meta-skill that intercepts, analyzes, enriches, and optimizes prompts for coding and AI agents. It dynamically discovers local and online skills, tools, and MCP servers, constructs capability graphs, enforces strict verification and security boundaries, and outputs actionable, high-precision execution prompts without changing user intent.
-author: Mahmoud
+author: Mahmoud Abdelhameid
+linkedin: https://www.linkedin.com/in/mahmoud-abdelhameid-dev/
 contact: Develper.net@gmail.com
 license: MIT
 version: 1.0.0
@@ -265,8 +266,10 @@ To ensure deep modularity and progressive context disclosure, refer to the follo
 
 ## 6. Authorship & Copyright
 
-- **Author & Lead Architect**: **Mahmoud**
+- **Author & Lead Architect**: **Mahmoud Abdelhameid**
+- **LinkedIn**: [mahmoud-abdelhameid-dev](https://www.linkedin.com/in/mahmoud-abdelhameid-dev/)
 - **Email / Contact**: [Develper.net@gmail.com](mailto:Develper.net@gmail.com)
-- **Copyright**: © 2026 Mahmoud. All rights reserved.
+- **Copyright**: © 2026 Mahmoud Abdelhameid. All rights reserved.
 - **License**: MIT License
+
 
