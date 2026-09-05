@@ -85,3 +85,6 @@ COMPLETION CRITERIA:
    - Altering the user's choice of database, swapping language, replacing requested libraries, or adding unrequested feature scopes.
    - Any architectural suggestion not mandated by the user must be explicitly designated as:
      `RECOMMENDATION (Optional): ...`
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

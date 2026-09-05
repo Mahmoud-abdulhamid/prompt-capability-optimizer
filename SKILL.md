@@ -1,6 +1,10 @@
 ---
 name: prompt-capability-optimizer
 description: Production-grade, cross-platform agent meta-skill that intercepts, analyzes, enriches, and optimizes prompts for coding and AI agents. It dynamically discovers local and online skills, tools, and MCP servers, constructs capability graphs, enforces strict verification and security boundaries, and outputs actionable, high-precision execution prompts without changing user intent.
+author: Mahmoud
+contact: Develper.net@gmail.com
+license: MIT
+version: 1.0.0
 ---
 
 # Prompt Capability Optimizer (`prompt-capability-optimizer`)
@@ -256,3 +260,13 @@ To ensure deep modularity and progressive context disclosure, refer to the follo
 - **[templates/optimized_prompt_template.md](file:///d:/prompt-capability-optimizer/templates/optimized_prompt_template.md)**: Drop-in modular prompt templates.
 - **[scripts/capability_checker.py](file:///d:/prompt-capability-optimizer/scripts/capability_checker.py)**: Python automation tool for environment and skill probing.
 - **[examples/](file:///d:/prompt-capability-optimizer/examples/)**: 8 fully worked test cases spanning all prompt archetypes.
+
+---
+
+## 6. Authorship & Copyright
+
+- **Author & Lead Architect**: **Mahmoud**
+- **Email / Contact**: [Develper.net@gmail.com](mailto:Develper.net@gmail.com)
+- **Copyright**: © 2026 Mahmoud. All rights reserved.
+- **License**: MIT License
+

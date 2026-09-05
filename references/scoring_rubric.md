@@ -44,3 +44,6 @@ When multiple candidate skills or tools compete for the same capability node:
    - Never activate two skills that instruct the agent on the same underlying abstraction (e.g., two different ORM guides).
 3. **Hierarchy of Provenance**:
    $$\text{Official Maintainer} > \text{Verified Community} > \text{Generic Community} > \text{Ad-hoc Web Snippet}$$
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

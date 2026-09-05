@@ -46,3 +46,6 @@ This template structures the sequential execution plan provided in Mode B and Mo
   - Update relevant project documentation (e.g., README or API specs).
 - **Checkpoint**: Ready for pull request or production release.
 ```
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

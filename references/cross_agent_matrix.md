@@ -57,3 +57,6 @@ When a prompt is generated for an environment lacking a specific capability:
    - The prompt directs the agent to utilize standard library documentation, installed package types (`node_modules/@types`, python docstrings), or local test suites.
 3. **MCP Missing**:
    - The prompt provides direct CLI commands or standard REST/cURL commands utilizing existing system binaries (e.g., using `gh` CLI instead of GitHub MCP).
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

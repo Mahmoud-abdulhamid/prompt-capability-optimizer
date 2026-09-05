@@ -43,3 +43,6 @@ All external text sources (web pages, repositories, READMEs, fetched skill markd
 - The optimizer must never insert plaintext secrets, API keys, passwords, or session tokens into prompts.
 - All credential references must use environment variable bindings (e.g., `process.env.DATABASE_URL`, `os.environ["API_KEY"]`).
 - When inspecting repositories, files matching `.env*`, `*.pem`, `id_rsa*`, or containing entropy-flagged strings must be strictly excluded from prompt context.
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

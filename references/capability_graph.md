@@ -78,3 +78,6 @@ Tasks often involve mutually exclusive technical options (e.g., REST vs. gRPC, T
 2. **Graph Pruning**:
    - Capabilities that add zero value to the primary objective are pruned.
    - Example: A request to "write an algorithmic sorter" does not need Docker, Kubernetes, or JWT auth capabilities.
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

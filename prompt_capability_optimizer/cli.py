@@ -20,8 +20,10 @@ from .adapters.host_adapter import detect_host_runtime
 def main():
     parser = argparse.ArgumentParser(
         prog="prompt-capability-optimizer",
-        description="Autonomous Capability Discovery & Two-Pass Prompt Engineering Engine"
+        description="Autonomous Capability Discovery & Two-Pass Prompt Engineering Engine",
+        epilog="Author: Mahmoud <Develper.net@gmail.com> | Copyright (c) 2026 Mahmoud. All rights reserved."
     )
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0 by Mahmoud <Develper.net@gmail.com>")
     subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
     
     # optimize subcommand

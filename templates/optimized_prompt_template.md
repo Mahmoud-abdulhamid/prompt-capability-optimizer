@@ -50,3 +50,6 @@ COMPLETION CRITERIA:
 - No regression introduced in existing test suites.
 - Production-grade code formatting applied.
 ```
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

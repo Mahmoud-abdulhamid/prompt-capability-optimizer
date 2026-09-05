@@ -89,3 +89,6 @@ def detect_host_runtime(env):
 - If the host lacks MCP: The prompt must instruct the agent to use local CLI tools or REST scripts.
 - If the host lacks internet access: The prompt must explicitly instruct the agent to operate exclusively on existing repository files and local standard libraries.
 - If the host is Windows PowerShell: Commands must strictly avoid Unix-only constructs (e.g., avoid `export`, `cat file | grep`, prefer `Select-String`, `$env:VAR`).
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License

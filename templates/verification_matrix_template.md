@@ -21,3 +21,6 @@ This template structures the concrete testing and verification directives embedd
 2. If **Tests fail**: Read test output and failure diffs. Fix the underlying implementation logic, not the test assertions (unless the test itself contained flawed assumptions).
 3. If **Linter fails**: Automatically fix formatting using project linter configs (`npm run lint -- --fix`).
 ```
+
+---
+**Author**: Mahmoud (<Develper.net@gmail.com>) | **Copyright**: © 2026 Mahmoud. All rights reserved. | **License**: MIT License
