@@ -1,53 +1,110 @@
 """
-Pass 1 — Semantic Optimization
-==============================
-Focuses on intent clarification, objective sharpening, explicit architectural constraints,
-and removing ambiguity while strictly preserving user goals.
+Pass 1 — Semantic Optimization & Intent Preservation
+====================================================
+Infers accurate personas from actual task content rather than arbitrary level numbers.
+Categorizes requirements into USER_EXPLICIT, PROJECT_CONSTRAINT, SECURITY_REQUIREMENT,
+and OPTIONAL_RECOMMENDATION without inventing unrequested mandatory burdens.
 """
 
+import re
 from typing import Dict, Any, List
-from ..models import PromptIR, ClassificationReport
+from ..models import PromptIR, ClassificationReport, ClassifiedRequirement, RequirementCategory
 
 class SemanticPass:
-    
-    ROLE_MAPPINGS = {
-        0: "Senior Systems Engineer & Technical Explainer",
-        1: "Staff Software Engineer & Testing Specialist",
-        2: "Principal Software Architect & Full-Stack Engineer",
-        3: "Lead Application Security Architect & Cryptography Specialist",
-        4: "Chief Enterprise Architect & Distributed Systems Engineer"
-    }
+
+    @classmethod
+    def infer_task_role(cls, prompt_text: str, level: int) -> str:
+        """
+        Derives an appropriate role from actual task content instead of arbitrary level tier.
+        """
+        lower = prompt_text.lower()
+        
+        # Beginner or educational queries
+        if re.search(r"\b(?:beginner|explain|tutorial|what is|how does)\b", lower):
+            return "Technical Mentor & Software Specialist"
+            
+        # Security & Auth domains
+        if re.search(r"\b(?:auth|authentication|oauth|jwt|security|crypto|asvs|penetration)\b", lower):
+            return "Application Security & Authentication Specialist"
+            
+        # Performance & Memory
+        if re.search(r"\b(?:memory leak|profiling|heap|garbage collect|latency|optimization)\b", lower):
+            return "Runtime Performance & Diagnostics Specialist"
+            
+        # Frontend & UI
+        if re.search(r"\b(?:react|vue|ui|frontend|css|tailwind|playwright|cypress)\b", lower):
+            return "Frontend Systems & QA Automation Engineer"
+            
+        # Backend & APIs
+        if re.search(r"\b(?:nestjs|fastify|express|rest api|graphql|grpc|endpoint|microservices)\b", lower):
+            return "Backend Services & API Architect"
+            
+        # Multi-System SaaS
+        if level >= 4 or "saas" in lower or "multi-tenant" in lower:
+            return "Distributed Systems & Cloud Architect"
+            
+        # General engineering default
+        return "Senior Software Engineer"
 
     @classmethod
     def execute(cls, prompt_ir: PromptIR, classification: ClassificationReport) -> PromptIR:
-        # 1. Assign precise persona
-        prompt_ir.role = cls.ROLE_MAPPINGS.get(classification.level, "Senior Software Architect")
+        # 1. Assign specialized persona based on actual task domain
+        prompt_ir.role = cls.infer_task_role(prompt_ir.raw_prompt, classification.level)
         prompt_ir.depth = classification.level
         
-        # 2. Add baseline engineering constraints
-        baseline_constraints = [
-            "Additive Change Policy: Preserve existing working functionality and shared contracts.",
-            "Strict Typing: Ensure zero implicit 'any' and validate all schema boundaries."
-        ]
-        for c in baseline_constraints:
-            if c not in prompt_ir.constraints:
-                prompt_ir.constraints.append(c)
-                prompt_ir.diff.added_constraints.append(c)
+        # 2. Extract and categorize requirements
+        classified_reqs: List[ClassifiedRequirement] = []
+        
+        # A. USER_EXPLICIT
+        classified_reqs.append(ClassifiedRequirement(
+            text=prompt_ir.objective,
+            category=RequirementCategory.USER_EXPLICIT
+        ))
+        
+        # B. PROJECT_CONSTRAINT (respecting existing repo language and style)
+        repo_rule = "Follow the repository's existing language standards, compiler settings, and architectural patterns."
+        classified_reqs.append(ClassifiedRequirement(
+            text=repo_rule,
+            category=RequirementCategory.PROJECT_CONSTRAINT
+        ))
+        if repo_rule not in prompt_ir.constraints:
+            prompt_ir.constraints.append(repo_rule)
+            prompt_ir.diff.added_constraints.append(repo_rule)
+            
+        additive_rule = "Additive Change Policy: Preserve existing working functionality and public contracts."
+        classified_reqs.append(ClassifiedRequirement(
+            text=additive_rule,
+            category=RequirementCategory.PROJECT_CONSTRAINT
+        ))
+        if additive_rule not in prompt_ir.constraints:
+            prompt_ir.constraints.append(additive_rule)
+            prompt_ir.diff.added_constraints.append(additive_rule)
+            
+        # C. SECURITY_REQUIREMENT
+        if classification.level >= 3 or any(w in prompt_ir.raw_prompt.lower() for w in ["auth", "security", "token", "password", "payment"]):
+            sec_rule = "Security: Sanitize all untrusted inputs, parameterize queries, and prevent credential exposure."
+            classified_reqs.append(ClassifiedRequirement(
+                text=sec_rule,
+                category=RequirementCategory.SECURITY_REQUIREMENT
+            ))
+            if sec_rule not in prompt_ir.constraints:
+                prompt_ir.constraints.append(sec_rule)
                 
-        # 3. Add explicit negative constraints
+        # D. NEGATIVE CONSTRAINTS (Preventing unrequested scope changes)
         negative_rules = [
             "Do NOT introduce unapproved third-party dependencies.",
-            "Do NOT remove or bypass existing security or linting configurations."
+            "Do NOT modify unrelated modules or existing configurations."
         ]
         for nr in negative_rules:
             if nr not in prompt_ir.negative_constraints:
                 prompt_ir.negative_constraints.append(nr)
                 
-        # 4. Formulate completion criteria
+        # E. COMPLETION CRITERIA (emphasizing baseline regression prevention)
         prompt_ir.completion_criteria = [
-            "All new and existing automated tests pass with 0 errors and 0 warnings.",
-            "Code conforms cleanly to existing repository conventions and style rules."
+            "All targeted functionality behaves as requested with zero regression against pre-existing baseline.",
+            "Code adheres strictly to project linting, typechecking, and formatting rules."
         ]
         
-        prompt_ir.diff.preserved_intent_summary = f"Preserved intent: '{prompt_ir.objective}'"
+        prompt_ir.categorized_requirements = classified_reqs
+        prompt_ir.diff.preserved_intent_summary = f"Preserved user intent: '{prompt_ir.objective}'"
         return prompt_ir

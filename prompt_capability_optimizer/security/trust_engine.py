@@ -2,46 +2,69 @@
 Trust & Provenance Engine
 =========================
 Separates reputation signals (stars/downloads) from verified security/trust metrics.
-Evaluates requested permissions and provenance.
+Evaluates requested permissions, publisher domain provenance, and metadata.
 """
 
 from typing import Dict, Any, List
-from ..models import Resource, RiskLevel
+from ..models import Resource, RiskLevel, ResourceType
 
 class TrustEngine:
     
     VERIFIED_PUBLISHERS = {
         "anthropics", "vercel-labs", "google", "microsoft", "github",
-        "nestjs", "facebook", "aws", "docker"
+        "nestjs", "facebook", "aws", "docker", "composiohq"
+    }
+    
+    TRUSTED_DOMAINS = {
+        "docs.nestjs.com", "owasp.org", "react.dev", "go.dev", "python.org",
+        "typescriptlang.org", "nodejs.org", "postgresql.org", "redis.io",
+        "kafka.apache.org", "temporal.io", "neon.tech", "prisma.io"
     }
 
     @classmethod
     def evaluate_resource_trust(cls, resource: Resource) -> Dict[str, Any]:
         """
-        Calculates distinct Reputation vs. Trust/Security scores.
+        Calculates distinct Reputation vs. Trust/Security scores using domain provenance and metadata.
         """
         trust_factors = []
         risk_flags = []
+        provenance_score = 5.0
         
-        # 1. Provenance evaluation
+        # 1. Provenance from official domains (for Web Documentation)
+        domain = resource.metadata.get("domain", "")
+        if not domain and resource.location:
+            import urllib.parse
+            try:
+                domain = urllib.parse.urlparse(resource.location).hostname or ""
+            except Exception:
+                domain = ""
+                
+        if domain in cls.TRUSTED_DOMAINS or any(domain.endswith(f".{td}") for td in cls.TRUSTED_DOMAINS):
+            trust_factors.append(f"Verified authoritative technical domain ({domain})")
+            provenance_score = 9.8
+        elif resource.type == ResourceType.DOCUMENTATION:
+            if domain.endswith(".org") or domain.endswith(".dev") or domain.endswith(".io"):
+                provenance_score = 8.5
+            else:
+                provenance_score = 7.0
+
+        # 2. Provenance from publisher names (for skills/packages)
         publisher = resource.name.split("/")[0] if "/" in resource.name else ""
-        is_verified_pub = publisher in cls.VERIFIED_PUBLISHERS
-        if is_verified_pub:
-            trust_factors.append("Verified official organization publisher")
-            provenance_score = 9.5
-        elif resource.source.startswith("local_builtin"):
+        if publisher.lower() in cls.VERIFIED_PUBLISHERS:
+            trust_factors.append(f"Verified official ecosystem publisher ({publisher})")
+            provenance_score = max(provenance_score, 9.5)
+            
+        if resource.source.startswith("local_builtin"):
             trust_factors.append("Host agent built-in capability")
             provenance_score = 10.0
         elif resource.source.startswith("local"):
             trust_factors.append("Local project/user verified file")
-            provenance_score = 8.5
-        else:
-            provenance_score = 5.0
+            provenance_score = max(provenance_score, 8.5)
             
-        # 2. Permission and side-effect review
+        # 3. Permission and side-effect review
         if any("write" in p.lower() or "exec" in p.lower() or "install" in p.lower() for p in resource.permissions):
             risk_flags.append("Demands write/exec/install permissions")
-            permission_penalty = 2.0
+            permission_penalty = 1.5
         else:
             permission_penalty = 0.0
             
@@ -56,7 +79,7 @@ class TrustEngine:
         else:
             risk_level = RiskLevel.NO_SIDE_EFFECT
             
-        resource.trust = final_trust
+        resource.trust = round(final_trust, 2)
         resource.risk_level = risk_level
         
         return {

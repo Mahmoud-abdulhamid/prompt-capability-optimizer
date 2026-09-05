@@ -2,11 +2,11 @@
 Prompt Capability Optimizer Core Engine
 =======================================
 End-to-end execution pipeline connecting classification, capability graph,
-discovery, trust evaluation, two-pass optimization, and self-critique.
+discovery, trust evaluation, two-pass optimization, self-critique, and Mode C lifecycle.
 """
 
 from typing import Dict, Any, List, Optional
-from .models import PromptIR, Resource, ClassificationReport, CritiqueReport
+from .models import PromptIR, Resource, ClassificationReport, CritiqueReport, RiskLevel
 from .config import DEFAULT_CONFIG, OptimizerConfig
 from .classification.task_classifier import TaskClassifier
 from .intent.intent_analyzer import IntentAnalyzer
@@ -31,26 +31,36 @@ class PromptOptimizerEngine:
         self.config = config or DEFAULT_CONFIG
         self.registry = ResourceRegistry()
         self.find_skills_adapter = FindSkillsAdapter()
+        self.web_discovery = WebDiscovery()
         
     def _populate_discovery(self, required_caps: List[str], depth: int):
-        # 1. Local skill discovery
+        # 1. Real local skill discovery
         local_skills = LocalSkillDiscovery.discover()
         self.registry.register_many(local_skills)
         
-        # 2. Real host MCP discovery
+        # 2. Real host MCP discovery with parsed state machine
         mcp_servers = McpDiscovery.discover()
         self.registry.register_many(mcp_servers)
         
-        # 3. For complex tasks (depth >= 2), query web guidance
-        if depth >= 2 and self.config.enable_web_discovery:
+        # 3. Real find-skills integration: query for specialized capabilities
+        if depth >= 1 and self.config.enable_find_skills_cli:
             for cap_name in required_caps:
-                web_docs = WebDiscovery.discover_guidance(cap_name)
-                self.registry.register_many(web_docs)
+                # Query open skills ecosystem for packages matching capability
+                skills_results = self.find_skills_adapter.search(cap_name, limit=2)
+                if skills_results:
+                    self.registry.register_many(skills_results)
+                    
+        # 4. Real Web Discovery pipeline for dynamic/unseen technologies
+        if depth >= 1 and self.config.enable_web_discovery:
+            for cap_name in required_caps:
+                web_docs = self.web_discovery.discover_for_capability(cap_name)
+                if web_docs:
+                    self.registry.register_many(web_docs)
                 
-    def optimize(self, raw_prompt: str, mode: str = "B") -> Dict[str, Any]:
+    def optimize(self, raw_prompt: str, mode: str = "B", confirmed_execution: bool = False) -> Dict[str, Any]:
         """
         Executes the full pipeline:
-        Intent -> Classify -> Capabilities -> Discovery -> Scoring -> Two-Pass Optimization -> Critique -> Output
+        Intent -> Classify -> Capabilities -> Discovery -> Scoring -> Two-Pass Optimization -> Critique -> Mode C Governance -> Output
         """
         # Step 0: Security Sanity Check (Secret protection & Prompt Injection Detection)
         secrets_found = SecretProtector.find_secrets(raw_prompt)
@@ -68,7 +78,7 @@ class PromptOptimizerEngine:
         cap_graph = CapabilityGraph(caps)
         required_cap_names = cap_graph.get_capability_names()
         
-        # Step 3: Discovery
+        # Step 3: Real Discovery (Local, find-skills, MCP, Web)
         self.registry.clear()
         self._populate_discovery(required_cap_names, classification.level)
         
@@ -89,7 +99,7 @@ class PromptOptimizerEngine:
             min_utility=self.config.utility_conditional_threshold
         )
         
-        # Ensure at least baseline agent execution tool is bound for complex tasks
+        # Ensure at least baseline agent execution tool is bound for complex tasks if none was discovered
         if not selected_resources and classification.level >= 2:
             selected_resources.append(Resource(
                 id="builtin:native-agent-tools",
@@ -121,22 +131,35 @@ class PromptOptimizerEngine:
         )
         rendered_prompt = TwoPassOptimizer.render_prompt(prompt_ir)
         
-        # Step 8: Real Self-Critique Engine
+        # Step 8: Real Qualitative Self-Critique
         critique_report = SelfCritiqueEngine.evaluate(rendered_prompt, depth=classification.level)
         
         # Step 9: Automatic Correction Pass (if critique indicates missing requirements)
         if not critique_report.passed:
             for rec in critique_report.recommendations:
-                if "negative boundaries" in rec.lower():
+                if "negative" in rec.lower():
                     prompt_ir.negative_constraints.append("Do NOT alter unrequested codebase layers.")
-                if "completion criteria" in rec.lower():
-                    prompt_ir.completion_criteria.append("100% of integration checks pass.")
+                if "completion" in rec.lower():
+                    prompt_ir.completion_criteria.append("100% of integration checks pass against baseline.")
             rendered_prompt = TwoPassOptimizer.render_prompt(prompt_ir)
             # Re-evaluate
             critique_report = SelfCritiqueEngine.evaluate(rendered_prompt, depth=classification.level)
             
+        # Step 10: Mode C Lifecycle & Governance Check
+        execution_status = "NOT_REQUESTED"
+        if mode.upper() == "C":
+            task_has_side_effects = any(kw in safe_prompt.lower() for kw in ["install", "deploy", "delete", "drop", "publish", "push", "remove", "migrate"])
+            resource_has_side_effects = any(r.risk_level in [RiskLevel.EXTERNAL_SIDE_EFFECT, RiskLevel.DESTRUCTIVE] for r in selected_resources)
+            has_side_effects = task_has_side_effects or resource_has_side_effects
+            
+            if has_side_effects and not confirmed_execution:
+                execution_status = "AWAITING_USER_APPROVAL (Side-effects detected; explicit confirmation required)"
+            else:
+                execution_status = "READY_FOR_CONTROLLED_EXECUTION"
+
         return {
             "mode": mode.upper(),
+            "execution_status": execution_status,
             "classification": {
                 "level": classification.level,
                 "confidence": classification.confidence,
@@ -150,7 +173,8 @@ class PromptOptimizerEngine:
                     "type": r.type.value,
                     "utility_score": r.utility_score,
                     "trust": r.trust,
-                    "source": r.source
+                    "source": r.source,
+                    "risk_level": r.risk_level.value
                 }
                 for r in selected_resources
             ],
@@ -161,6 +185,8 @@ class PromptOptimizerEngine:
             "critique": {
                 "passed": critique_report.passed,
                 "score": critique_report.score,
+                "confidence": critique_report.confidence,
+                "critical_issues": critique_report.critical_issues,
                 "recommendations": critique_report.recommendations
             },
             "diff": {

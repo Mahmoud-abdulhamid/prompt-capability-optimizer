@@ -3,11 +3,11 @@ Secret & Credential Protector
 =============================
 Detects plaintext secrets, API keys, private tokens, and database passwords
 using strict regex patterns and entropy analysis.
+CRITICAL SAFETY INVARIANT: Never retains or serializes plaintext secret values.
 """
 
 import re
-import math
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
 
 class SecretProtector:
     
@@ -29,15 +29,22 @@ class SecretProtector:
     ]
 
     @classmethod
-    def find_secrets(cls, text: str) -> List[Dict[str, str]]:
+    def find_secrets(cls, text: str) -> List[Dict[str, Any]]:
+        """
+        Detects secrets and returns sanitized descriptor objects.
+        NEVER stores or leaks the raw plaintext secret string.
+        """
         found = []
         for pattern, label in cls.SECRET_PATTERNS:
             for match in re.finditer(pattern, text):
                 matched_val = match.group(1) if match.groups() else match.group(0)
+                # Form secure masked preview without retaining original payload
+                preview = matched_val[:3] + "..." + matched_val[-3:] if len(matched_val) > 6 else "***"
                 found.append({
                     "label": label,
-                    "preview": matched_val[:4] + "..." + matched_val[-4:] if len(matched_val) > 8 else "***",
-                    "full_secret": matched_val
+                    "preview": preview,
+                    "length": len(matched_val),
+                    "redacted": True
                 })
         return found
 

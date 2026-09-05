@@ -1,9 +1,11 @@
 """
 Unified Command Line Interface
 ==============================
-Provides standard CLI commands for prompt optimization and environment probing.
+Provides standard CLI commands for prompt optimization, environment probing,
+and controlled Mode C execution governance.
 Usage:
-  python -m prompt_capability_optimizer optimize "Build a NestJS auth API" --json
+  python -m prompt_capability_optimizer optimize "Build a NestJS auth API" --mode B --json
+  python -m prompt_capability_optimizer optimize "Build a NestJS auth API" --mode C --confirm-execute
   python -m prompt_capability_optimizer probe
 """
 
@@ -26,6 +28,7 @@ def main():
     opt_parser = subparsers.add_parser("optimize", help="Optimize a raw prompt")
     opt_parser.add_argument("prompt", type=str, help="The prompt text to optimize")
     opt_parser.add_argument("--mode", type=str, choices=["A", "B", "C"], default="B", help="Output mode (A: optimize only, B: prepare, C: execute)")
+    opt_parser.add_argument("--confirm-execute", action="store_true", help="Explicit human authorization for Mode C execution side-effects")
     opt_parser.add_argument("--json", action="store_true", help="Output machine-readable JSON")
     
     # probe subcommand
@@ -36,14 +39,20 @@ def main():
     
     if args.command == "optimize":
         engine = PromptOptimizerEngine()
-        result = engine.optimize(args.prompt, mode=args.mode)
+        result = engine.optimize(
+            args.prompt,
+            mode=args.mode,
+            confirmed_execution=args.confirm_execute
+        )
         if args.json:
             print(json.dumps(result, indent=2))
         else:
             print(f"=== Prompt Capability Optimizer (Mode {result['mode']}) ===")
             print(f"Classification Level: {result['classification']['level']} ({result['classification']['reasoning']})")
             print(f"Discovered Capabilities: {', '.join(result['required_capabilities'])}")
-            print(f"Critique Pass: {result['critique']['passed']} (Score: {result['critique']['score']})\n")
+            print(f"Critique Pass: {result['critique']['passed']} (Score: {result['critique']['score']})")
+            if result.get("execution_status"):
+                print(f"Execution Governance: {result['execution_status']}\n")
             print("--- OPTIMIZED PROMPT ---")
             print(result["optimized_prompt"])
             
@@ -57,11 +66,16 @@ def main():
             "local_skills_count": len(skills),
             "local_skills": [{"name": s.name, "source": s.source} for s in skills],
             "mcp_servers_count": len(mcp_servers),
-            "mcp_servers": [{"name": m.name, "tools": m.metadata.get("tools", [])} for m in mcp_servers]
+            "mcp_servers": [
+                {
+                    "name": m.name,
+                    "status": m.metadata.get("status"),
+                    "tools": m.metadata.get("tools", [])
+                }
+                for m in mcp_servers
+            ]
         }
-        
-        if args.json or True:
-            print(json.dumps(rep, indent=2))
+        print(json.dumps(rep, indent=2))
     else:
         parser.print_help()
 

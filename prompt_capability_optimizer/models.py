@@ -26,11 +26,32 @@ class CapabilityStatus(str, Enum):
     RUNTIME_DETECTED = "runtime_detected"
     INFERRED = "inferred"
 
+class McpServerStatus(str, Enum):
+    CONFIGURED = "CONFIGURED"
+    PARSED = "PARSED"
+    REACHABLE = "REACHABLE"
+    INITIALIZED = "INITIALIZED"
+    TOOLS_DISCOVERED = "TOOLS_DISCOVERED"
+
 class RiskLevel(str, Enum):
     NO_SIDE_EFFECT = "NO_SIDE_EFFECT"
     LOW_RISK = "LOW_RISK"
     EXTERNAL_SIDE_EFFECT = "EXTERNAL_SIDE_EFFECT"
     DESTRUCTIVE = "DESTRUCTIVE"
+
+class RequirementCategory(str, Enum):
+    USER_EXPLICIT = "USER_EXPLICIT"
+    DERIVED_NECESSITY = "DERIVED_NECESSITY"
+    PROJECT_CONSTRAINT = "PROJECT_CONSTRAINT"
+    SECURITY_REQUIREMENT = "SECURITY_REQUIREMENT"
+    VERIFICATION_REQUIREMENT = "VERIFICATION_REQUIREMENT"
+    OPTIONAL_RECOMMENDATION = "OPTIONAL_RECOMMENDATION"
+
+@dataclass
+class ClassifiedRequirement:
+    text: str
+    category: RequirementCategory
+    source: str = "intent"
 
 @dataclass
 class Capability:
@@ -94,8 +115,9 @@ class ClassificationReport:
 
 @dataclass
 class CritiqueFinding:
-    question: str
+    dimension: str
     passed: bool
+    score: float
     finding: str
     recommendation: str
 
@@ -103,8 +125,10 @@ class CritiqueFinding:
 class CritiqueReport:
     passed: bool
     score: float
+    confidence: float
     findings: List[CritiqueFinding]
-    recommendations: List[str]
+    critical_issues: List[str] = field(default_factory=list)
+    recommendations: List[str] = field(default_factory=list)
 
 @dataclass
 class PromptDiff:
@@ -120,8 +144,10 @@ class PromptIR:
     role: str = ""
     objective: str = ""
     context: str = ""
+    categorized_requirements: List[ClassifiedRequirement] = field(default_factory=list)
     constraints: List[str] = field(default_factory=list)
     negative_constraints: List[str] = field(default_factory=list)
+    optional_recommendations: List[str] = field(default_factory=list)
     required_capabilities: List[str] = field(default_factory=list)
     selected_resources: List[Resource] = field(default_factory=list)
     implementation_requirements: List[str] = field(default_factory=list)

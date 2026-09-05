@@ -1,12 +1,14 @@
 """
-Agent Ecosystem Adapters
-========================
-Concrete implementations for Gemini CLI / Antigravity, Claude Code, Cursor, and Cline.
+Agent Ecosystem Adapters & Compatibility Verification
+=====================================================
+Concrete host implementations for Claude Code, Codex, Gemini CLI, OpenCode,
+Cursor, Windsurf, Cline, and Roo Code.
+Guarantees that unknown agents are NEVER silently mapped to Gemini or any other agent.
 """
 
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from ..models import HostCapabilityItem, CapabilityStatus
 from .host_adapter import HostAdapter
 
@@ -65,7 +67,7 @@ class ClaudeCodeAdapter(HostAdapter):
         return HostCapabilityItem(
             capability="web",
             status=CapabilityStatus.HOST_DECLARED,
-            confidence=0.85,
+            confidence=0.90,
             details={"provider": "WebSearch / WebFetch", "validated": True}
         )
 
@@ -98,6 +100,35 @@ class CursorAdapter(HostAdapter):
             details={"provider": "Integrated web query", "validated": "Partial"}
         )
 
+class WindsurfAdapter(HostAdapter):
+    def get_agent_name(self) -> str:
+        return "windsurf"
+        
+    def get_skill_paths(self) -> List[Path]:
+        cwd = Path.cwd()
+        return [
+            cwd / ".windsurf" / "skills",
+            cwd / ".codeium" / "windsurf" / "memories"
+        ]
+        
+    def supports_mcp(self) -> HostCapabilityItem:
+        cwd = Path.cwd()
+        has_cfg = (cwd / ".windsurf" / "mcp.json").exists()
+        return HostCapabilityItem(
+            capability="mcp",
+            status=CapabilityStatus.RUNTIME_DETECTED if has_cfg else CapabilityStatus.HOST_DECLARED,
+            confidence=0.75,
+            details={"validated": "Partial"}
+        )
+        
+    def supports_web(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="web",
+            status=CapabilityStatus.HOST_DECLARED,
+            confidence=0.80,
+            details={"provider": "Integrated web search", "validated": "Partial"}
+        )
+
 class ClineAdapter(HostAdapter):
     def get_agent_name(self) -> str:
         return "cline"
@@ -105,8 +136,7 @@ class ClineAdapter(HostAdapter):
     def get_skill_paths(self) -> List[Path]:
         cwd = Path.cwd()
         return [
-            cwd / ".cline" / "skills",
-            cwd / ".roo" / "skills"
+            cwd / ".cline" / "skills"
         ]
         
     def supports_mcp(self) -> HostCapabilityItem:
@@ -125,12 +155,124 @@ class ClineAdapter(HostAdapter):
             details={"provider": "Browser tool", "validated": "Partial"}
         )
 
+class RooCodeAdapter(HostAdapter):
+    def get_agent_name(self) -> str:
+        return "roo_code"
+        
+    def get_skill_paths(self) -> List[Path]:
+        cwd = Path.cwd()
+        return [
+            cwd / ".roo" / "skills"
+        ]
+        
+    def supports_mcp(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="mcp",
+            status=CapabilityStatus.HOST_DECLARED,
+            confidence=0.85,
+            details={"provider": "Roo MCP client", "validated": "Partial"}
+        )
+        
+    def supports_web(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="web",
+            status=CapabilityStatus.HOST_DECLARED,
+            confidence=0.80,
+            details={"provider": "Browser tool", "validated": "Partial"}
+        )
+
+class CodexAdapter(HostAdapter):
+    def get_agent_name(self) -> str:
+        return "codex"
+        
+    def get_skill_paths(self) -> List[Path]:
+        cwd = Path.cwd()
+        return [cwd / ".agents" / "skills", cwd / "skills"]
+        
+    def supports_mcp(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="mcp",
+            status=CapabilityStatus.UNAVAILABLE,
+            confidence=0.90,
+            details={"validated": "Host-Dependent"}
+        )
+        
+    def supports_web(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="web",
+            status=CapabilityStatus.UNAVAILABLE,
+            confidence=0.90,
+            details={"validated": "Host-Dependent"}
+        )
+
+class OpenCodeAdapter(HostAdapter):
+    def get_agent_name(self) -> str:
+        return "opencode"
+        
+    def get_skill_paths(self) -> List[Path]:
+        cwd = Path.cwd()
+        return [cwd / ".opencode" / "skills", cwd / "skills"]
+        
+    def supports_mcp(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="mcp",
+            status=CapabilityStatus.UNKNOWN,
+            confidence=0.70,
+            details={"validated": "Host-Dependent"}
+        )
+        
+    def supports_web(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="web",
+            status=CapabilityStatus.UNKNOWN,
+            confidence=0.70,
+            details={"validated": "Host-Dependent"}
+        )
+
+class UnknownAgentAdapter(HostAdapter):
+    def __init__(self, raw_name: str):
+        self._raw_name = raw_name
+        
+    def get_agent_name(self) -> str:
+        return f"unknown:{self._raw_name}"
+        
+    def get_skill_paths(self) -> List[Path]:
+        cwd = Path.cwd()
+        return [cwd / "skills", cwd / ".skills"]
+        
+    def supports_mcp(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="mcp",
+            status=CapabilityStatus.UNKNOWN,
+            confidence=0.0,
+            details={"error": f"Agent '{self._raw_name}' is not recognized"}
+        )
+        
+    def supports_web(self) -> HostCapabilityItem:
+        return HostCapabilityItem(
+            capability="web",
+            status=CapabilityStatus.UNKNOWN,
+            confidence=0.0,
+            details={"error": f"Agent '{self._raw_name}' is not recognized"}
+        )
+
 def get_agent_adapter(agent_name: str) -> HostAdapter:
+    canonical = agent_name.lower().strip()
     adapters = {
         "gemini_cli": GeminiCliAdapter(),
+        "gemini": GeminiCliAdapter(),
+        "antigravity": GeminiCliAdapter(),
         "claude_code": ClaudeCodeAdapter(),
+        "claude": ClaudeCodeAdapter(),
         "cursor": CursorAdapter(),
+        "windsurf": WindsurfAdapter(),
         "cline": ClineAdapter(),
-        "roo_code": ClineAdapter()
+        "roo_code": RooCodeAdapter(),
+        "roo": RooCodeAdapter(),
+        "codex": CodexAdapter(),
+        "opencode": OpenCodeAdapter()
     }
-    return adapters.get(agent_name, GeminiCliAdapter())
+    # Fix critical bug: NEVER silently convert unknown agent to Gemini
+    if canonical not in adapters:
+        return UnknownAgentAdapter(agent_name)
+    return adapters[canonical]

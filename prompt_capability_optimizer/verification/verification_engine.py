@@ -2,7 +2,8 @@
 Repository-Aware Verification Engine
 ====================================
 Dynamically derives concrete test, build, lint, and typecheck commands from
-actual repository configuration files, guarding against hallucinated tools.
+actual repository configuration files, lockfiles, and declared scripts.
+Prioritizes project-declared commands and guards against hallucinated toolchains.
 """
 
 import os
@@ -13,68 +14,85 @@ from typing import List, Dict, Any, Optional
 class VerificationEngine:
     
     @classmethod
+    def detect_package_manager(cls, root: Path) -> str:
+        # Check modern lockfiles in order of precedence
+        if (root / "bun.lockb").exists() or (root / "bun.lock").exists():
+            return "bun"
+        if (root / "pnpm-lock.yaml").exists():
+            return "pnpm"
+        if (root / "yarn.lock").exists():
+            return "yarn"
+        return "npm"
+
+    @classmethod
     def derive_verification_directives(cls, workspace_root: Optional[Path] = None) -> List[str]:
         root = workspace_root or Path.cwd()
         directives: List[str] = []
         
-        # 1. Node.js / TypeScript Projects
+        # 1. Node.js / JavaScript / TypeScript Projects
         pkg_json = root / "package.json"
         if pkg_json.exists() and pkg_json.is_file():
             try:
                 data = json.loads(pkg_json.read_text(encoding="utf-8", errors="replace"))
                 scripts = data.get("scripts", {})
+                pm = cls.detect_package_manager(root)
                 
-                # Determine package manager
-                pm = "npm"
-                if (root / "pnpm-lock.yaml").exists():
-                    pm = "pnpm"
-                elif (root / "yarn.lock").exists():
-                    pm = "yarn"
-                elif (root / "bun.lockb").exists():
-                    pm = "bun"
-                    
                 if "test" in scripts:
-                    directives.append(f"Execute test suite: {pm} test")
+                    directives.append(f"Execute project test runner: {pm} test")
+                elif "test:unit" in scripts:
+                    directives.append(f"Execute unit tests: {pm} run test:unit")
+                    
                 if "test:e2e" in scripts:
-                    directives.append(f"Execute e2e tests: {pm} run test:e2e")
+                    directives.append(f"Execute e2e integration suite: {pm} run test:e2e")
+                    
                 if "lint" in scripts:
-                    directives.append(f"Run linter: {pm} run lint")
+                    directives.append(f"Run code linter: {pm} run lint")
+                    
                 if "build" in scripts:
                     directives.append(f"Run compilation build: {pm} run build")
+                    
+                # Only require typecheck if tsconfig exists AND typescript is installed/scripted
                 if (root / "tsconfig.json").exists():
-                    directives.append("Validate TypeScript types: npx tsc --noEmit")
+                    if "typecheck" in scripts:
+                        directives.append(f"Validate types: {pm} run typecheck")
+                    else:
+                        directives.append("Validate TypeScript types: npx tsc --noEmit")
             except Exception:
                 pass
                 
         # 2. Python Projects
         pyproject = root / "pyproject.toml"
+        poetry_lock = root / "poetry.lock"
         requirements = root / "requirements.txt"
-        if pyproject.exists() or requirements.exists() or any(root.glob("*.py")):
-            has_pytest = False
-            if pyproject.exists():
+        
+        if pyproject.exists() or requirements.exists() or poetry_lock.exists() or any(root.glob("*.py")):
+            if poetry_lock.exists():
+                directives.append("Execute Python tests: poetry run pytest")
+            elif pyproject.exists():
                 text = pyproject.read_text(encoding="utf-8", errors="replace")
-                has_pytest = "pytest" in text
-            directives.append("Run unit tests: pytest" if has_pytest else "Run test suite: python -m unittest discover")
-            directives.append("Validate Python syntax and imports with standard compiler")
+                if "pytest" in text:
+                    directives.append("Execute Python tests: pytest")
+                else:
+                    directives.append("Execute Python tests: python -m unittest discover")
+            else:
+                directives.append("Execute Python test suite: python -m unittest discover")
+                
+            directives.append("Verify Python syntax and imports with standard compiler")
 
         # 3. Rust Projects
         cargo = root / "Cargo.toml"
         if cargo.exists():
-            directives.append("Run test suite: cargo test")
+            directives.append("Execute Rust test suite: cargo test")
             directives.append("Run static analysis: cargo clippy -- -D warnings")
             directives.append("Verify compilation: cargo check")
 
         # 4. Go Projects
         gomod = root / "go.mod"
         if gomod.exists():
-            directives.append("Run test suite: go test -v ./...")
+            directives.append("Execute Go test suite: go test -v ./...")
             directives.append("Verify package compilation: go build ./...")
 
-        # If completely empty or unknown language environment
-        if not directives:
-            directives = [
-                "Execute local automated test suite according to project conventions",
-                "Verify zero syntax, compilation, or linter regressions introduced"
-            ]
-            
+        # Baseline regression guard
+        directives.append("Verify zero new regressions introduced against pre-existing repository baseline")
+
         return directives
